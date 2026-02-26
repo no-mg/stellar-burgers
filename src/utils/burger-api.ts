@@ -31,10 +31,7 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
         return Promise.reject(refreshData);
       }
       localStorage.setItem('refreshToken', refreshData.refreshToken);
-      setCookie(
-  'accessToken',
-  refreshData.accessToken.replace('Bearer ', '')
-);
+      setCookie('accessToken', refreshData.accessToken);
       return refreshData;
     });
 
@@ -46,12 +43,12 @@ export const fetchWithRefresh = async <T>(
     const res = await fetch(url, options);
     return await checkResponse<T>(res);
   } catch (err: any) {
-    if (err?.message === 'jwt expired') {
+    if (err?.message) {
       const refreshData = await refreshToken();
 
       if (options.headers) {
         (options.headers as Record<string, string>).authorization =
-          `Bearer ${getCookie('accessToken')}`;
+          refreshData.accessToken;
       }
 
       const res = await fetch(url, options);
@@ -61,7 +58,6 @@ export const fetchWithRefresh = async <T>(
     return Promise.reject(err);
   }
 };
-
 type TIngredientsResponse = TServerResponse<{
   data: TIngredient[];
 }>;

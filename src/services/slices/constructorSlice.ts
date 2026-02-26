@@ -5,11 +5,7 @@ import {
   PayloadAction
 } from '@reduxjs/toolkit';
 import { orderBurgerApi } from '../../utils/burger-api';
-import {
-  TConstructorIngredient,
-  TIngredient,
-  TOrder
-} from '@utils-types';
+import { TConstructorIngredient, TIngredient, TOrder } from '@utils-types';
 
 type TConstructorState = {
   bun: TIngredient | null;
@@ -34,15 +30,20 @@ const constructorSlice = createSlice({
   name: 'burgerConstructor',
   initialState,
   reducers: {
-    addIngredient: (state, action: PayloadAction<TIngredient>) => {
-      if (action.payload.type === 'bun') {
-        state.bun = action.payload;
-      } else {
-        state.ingredients.push({
-          ...action.payload,
+    addIngredient: {
+      reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
+        if (action.payload.type === 'bun') {
+          state.bun = action.payload;
+        } else {
+          state.ingredients.push(action.payload);
+        }
+      },
+      prepare: (ingredient: TIngredient) => ({
+        payload: {
+          ...ingredient,
           id: nanoid()
-        });
-      }
+        }
+      })
     },
 
     removeIngredient: (state, action: PayloadAction<string>) => {
@@ -80,16 +81,16 @@ const constructorSlice = createSlice({
         state.orderRequest = true;
       })
       .addCase(orderBurger.fulfilled, (state, action) => {
-  state.orderRequest = false;
+        state.orderRequest = false;
 
-  state.orderModalData = {
-    ...action.payload.order,
-    ingredients: state.ingredients.map((item) => item._id)
-  };
+        state.orderModalData = {
+          ...action.payload.order,
+          ingredients: state.ingredients.map((item) => item._id)
+        };
 
-  state.bun = null;
-  state.ingredients = [];
-})
+        state.bun = null;
+        state.ingredients = [];
+      })
       .addCase(orderBurger.rejected, (state) => {
         state.orderRequest = false;
       });

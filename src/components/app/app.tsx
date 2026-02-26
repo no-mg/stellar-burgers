@@ -5,7 +5,6 @@ import {
   Login,
   NotFound404,
   Profile,
-  ProfileOrders,
   Register,
   ResetPassword
 } from '@pages';
@@ -21,7 +20,7 @@ import { useEffect } from 'react';
 import { useDispatch } from '../../services/store';
 import { getIngredients } from '../../services/slices/ingredientSlice';
 import { getUser } from '../../services/slices/userSlice';
-
+import { getCookie } from '../../utils/cookie';
 
 function App() {
   const location = useLocation();
@@ -30,16 +29,11 @@ function App() {
   const background = location.state?.background;
   const dispatch = useDispatch();
 
-  useEffect(() => {
+useEffect(() => {
   dispatch(getIngredients());
 
-  const accessToken = localStorage.getItem('accessToken');
-
-  if (accessToken) {
-    dispatch(getUser());
-  }
+  dispatch(getUser());
 }, [dispatch]);
-
   return (
     <div className={styles.app}>
       <AppHeader />
@@ -85,19 +79,10 @@ function App() {
         />
 
         <Route
-          path='/profile'
+          path='/profile/*'
           element={
             <ProtectedRoute>
               <Profile />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path='/profile/orders'
-          element={
-            <ProtectedRoute>
-              <ProfileOrders />
             </ProtectedRoute>
           }
         />
@@ -110,7 +95,10 @@ function App() {
           <Route
             path='/feed/:number'
             element={
-              <Modal title='Информация о заказе' onClose={() => navigate(-1)}>
+              <Modal
+                title='Информация о заказе'
+                onClose={() => navigate(-1)}
+              >
                 <OrderInfo />
               </Modal>
             }
@@ -119,7 +107,10 @@ function App() {
           <Route
             path='/ingredients/:id'
             element={
-              <Modal title='Детали ингредиента' onClose={() => navigate(-1)}>
+              <Modal
+                title='Детали ингредиента'
+                onClose={() => navigate(-1)}
+              >
                 <IngredientDetails />
               </Modal>
             }
@@ -129,7 +120,10 @@ function App() {
             path='/profile/orders/:number'
             element={
               <ProtectedRoute>
-                <Modal title='Информация о заказе' onClose={() => navigate(-1)}>
+                <Modal
+                  title='Информация о заказе'
+                  onClose={() => navigate(-1)}
+                >
                   <OrderInfo />
                 </Modal>
               </ProtectedRoute>

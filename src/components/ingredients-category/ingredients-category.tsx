@@ -19,7 +19,7 @@ export const IngredientsCategory = forwardRef<
       counters[ingredient._id]++;
     });
     if (bun) {
-      counters[bun._id] = 1;
+      counters[bun._id] = 2;
     }
 
     return counters;
