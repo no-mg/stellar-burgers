@@ -20,20 +20,19 @@ import { useEffect } from 'react';
 import { useDispatch } from '../../services/store';
 import { getIngredients } from '../../services/slices/ingredientSlice';
 import { getUser } from '../../services/slices/userSlice';
-import { getCookie } from '../../utils/cookie';
+import { ProfileOrders } from '../../pages/profile-orders/profile-orders';
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const background = location.state?.background;
   const dispatch = useDispatch();
 
-useEffect(() => {
-  dispatch(getIngredients());
+  useEffect(() => {
+    dispatch(getIngredients());
+    dispatch(getUser());
+  }, [dispatch]);
 
-  dispatch(getUser());
-}, [dispatch]);
   return (
     <div className={styles.app}>
       <AppHeader />
@@ -79,10 +78,50 @@ useEffect(() => {
         />
 
         <Route
-          path='/profile/*'
+          path='/profile'
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path='/profile/orders'
+          element={
+            <ProtectedRoute>
+              <ProfileOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/ingredients/:id'
+          element={
+            <div className={styles.detailPageWrap}>
+              <p className={`text text_type_main-large ${styles.detailHeader}`}>
+                Детали ингредиента
+              </p>
+              <IngredientDetails />
+            </div>
+          }
+        />
+
+        <Route
+          path='/feed/:number'
+          element={
+            <div className={styles.detailPageWrap}>
+              <OrderInfo />
+            </div>
+          }
+        />
+
+        <Route
+          path='/profile/orders/:number'
+          element={
+            <ProtectedRoute>
+              <div className={styles.detailPageWrap}>
+                <OrderInfo />
+              </div>
             </ProtectedRoute>
           }
         />
@@ -95,10 +134,7 @@ useEffect(() => {
           <Route
             path='/feed/:number'
             element={
-              <Modal
-                title='Информация о заказе'
-                onClose={() => navigate(-1)}
-              >
+              <Modal title='Информация о заказе' onClose={() => navigate(-1)}>
                 <OrderInfo />
               </Modal>
             }
@@ -107,10 +143,7 @@ useEffect(() => {
           <Route
             path='/ingredients/:id'
             element={
-              <Modal
-                title='Детали ингредиента'
-                onClose={() => navigate(-1)}
-              >
+              <Modal title='Детали ингредиента' onClose={() => navigate(-1)}>
                 <IngredientDetails />
               </Modal>
             }
@@ -120,10 +153,7 @@ useEffect(() => {
             path='/profile/orders/:number'
             element={
               <ProtectedRoute>
-                <Modal
-                  title='Информация о заказе'
-                  onClose={() => navigate(-1)}
-                >
+                <Modal title='Информация о заказе' onClose={() => navigate(-1)}>
                   <OrderInfo />
                 </Modal>
               </ProtectedRoute>

@@ -1,5 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { TUser } from '../../utils/types';
+import {
+  TUser,
+  TRegisterData,
+  TLoginData,
+  TAuthResponse
+} from '../../utils/types';
 import {
   loginUserApi,
   registerUserApi,
@@ -24,36 +29,42 @@ const initialState: TUserState = {
   error: null
 };
 
-export const registerUser = createAsyncThunk(
+export const registerUser = createAsyncThunk<TAuthResponse, TRegisterData>(
   'user/register',
-  async (data: any) => {
+  async (data) => {
     const res = await registerUserApi(data);
+
+    const accessToken = res.accessToken.replace('Bearer ', '');
+
     localStorage.setItem('refreshToken', res.refreshToken);
-    setCookie('accessToken', res.accessToken);
+    setCookie('accessToken', accessToken);
 
     return res;
   }
 );
 
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<TAuthResponse, TLoginData>(
   'user/login',
-  async (data: any) => {
+  async (data) => {
     const res = await loginUserApi(data);
+
+    const accessToken = res.accessToken.replace('Bearer ', '');
+
     localStorage.setItem('refreshToken', res.refreshToken);
-    setCookie('accessToken', res.accessToken);
+    setCookie('accessToken', accessToken);
 
     return res;
   }
 );
 
-export const getUser = createAsyncThunk(
+export const getUser = createAsyncThunk<TUser, void>(
   'user/get',
   async (_, { rejectWithValue }) => {
     try {
       const res = await getUserApi();
       return res.user;
-    } catch (err: any) {
-      return rejectWithValue(err);
+    } catch {
+      return rejectWithValue('Ошибка');
     }
   }
 );
@@ -66,14 +77,11 @@ export const updateUser = createAsyncThunk(
   }
 );
 
-export const logoutUser = createAsyncThunk(
-  'user/logout',
-  async () => {
-    await logoutApi();
-    deleteCookie('accessToken');
-    localStorage.removeItem('refreshToken');
-  }
-);
+export const logoutUser = createAsyncThunk('user/logout', async () => {
+  await logoutApi();
+  deleteCookie('accessToken');
+  localStorage.removeItem('refreshToken');
+});
 
 const userSlice = createSlice({
   name: 'user',
@@ -117,7 +125,6 @@ const userSlice = createSlice({
 });
 
 export const selectUser = (state: RootState) => state.user.user;
-export const selectAuthChecked = (state: RootState) =>
-  state.user.isAuthChecked;
+export const selectAuthChecked = (state: RootState) => state.user.isAuthChecked;
 
 export default userSlice.reducer;

@@ -38,12 +38,12 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
 export const fetchWithRefresh = async <T>(
   url: RequestInfo,
   options: RequestInit
-) => {
+): Promise<T> => {
   try {
     const res = await fetch(url, options);
     return await checkResponse<T>(res);
-  } catch (err: any) {
-    if (err?.message) {
+  } catch (err) {
+    if (err instanceof Error && err.message) {
       const refreshData = await refreshToken();
 
       if (options.headers) {
@@ -191,10 +191,7 @@ export const forgotPasswordApi = (data: { email: string }) =>
     body: JSON.stringify(data)
   }).then((res) => checkResponse<TServerResponse<{}>>(res));
 
-export const resetPasswordApi = (data: {
-  password: string;
-  token: string;
-}) =>
+export const resetPasswordApi = (data: { password: string; token: string }) =>
   fetch(`${URL}/password-reset/reset`, {
     method: 'POST',
     headers: {
