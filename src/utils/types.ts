@@ -37,4 +37,22 @@ export type TUser = {
   name: string;
 };
 
+export type TRegisterData = {
+  email: string;
+  password: string;
+  name: string;
+};
+
+export type TLoginData = {
+  email: string;
+  password: string;
+};
+
+export type TAuthResponse = {
+  user: TUser;
+  accessToken: string;
+  refreshToken: string;
+};
+
+
 export type TTabMode = 'bun' | 'sauce' | 'main';
